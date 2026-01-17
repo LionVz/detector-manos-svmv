@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de clasificación y detección de manos mediante inteligencia artificial">
+    <title>Detector de Manos - Clasificador IA</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">Detector de Manos</h1>
+                <p class="header-subtitle">Clasificador SVM</p>
+            </div>
+            <img src="/static/logo.png" alt="Logo Institucional" class="header-logo">
+        </header>
+
+        <aside class="sidebar">
+            <div class="sidebar-menu">
+                <button id="btnShowInstructions" class="btn btn-sidebar active">📖 Instrucciones</button>
+                <button id="btnShowStats" class="btn btn-sidebar">📊 Estadísticas</button>
+            </div>
+
+            <div id="instructionsContent" class="sidebar-content">
+                <h3>Pasos a seguir</h3>
+                <ol style="padding-left: 20px; margin-top: 10px;">
+                    <li>Sube una imagen.</li>
+                    <li>Verifica la vista previa.</li>
+                    <li>Haz clic en Predecir.</li>
+                </ol>
+            </div>
+
+            <div id="statsContent" class="sidebar-content" style="display: none;">
+                <h3>Datos de Sesión</h3>
+                <p>Imágenes procesadas: <strong id="statCount">0</strong></p>
+                <p>Última confianza: <strong id="statConfidence">-</strong></p>
+            </div>
+        </aside>
+
+        <main class="main">
+            <section class="upload-section card">
+                <h2>Cargar Imagen</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p>Arrastra una imagen o</p>
+                    <label for="imageInput" class="upload-label">selecciona un archivo</label>
+                    <input type="file" id="imageInput" class="image-input" accept="image/*" />
+                </div>
+            </section>
+
+            <section id="previewSection" class="preview-section card" style="display: none;">
+                <h2>Vista Previa</h2>
+                <div class="preview-container">
+                    <img id="previewImage" alt="Vista previa de la imagen" />
+                </div>
+                <button id="clearButton" class="btn btn-secondary">Limpiar</button>
+            </section>
+
+            <section class="action-section card">
+                <button id="predictButton" class="btn btn-primary" disabled>
+                    <span id="buttonText">Realizar Predicción</span>
+                    <span id="spinner" class="spinner" style="display: none;"></span>
+                </button>
+            </section>
+        </main>
+
+        <article class="article">
+            <section id="resultSection" class="result-section card" style="display: none;">
+                <h2>Resultado</h2>
+                <div id="resultContent" class="result-content">
+                    <div id="confidence" class="confidence-bar">
+                        <div id="confidenceLevel" class="confidence-fill"></div>
+                    </div>
+                    <p id="resultText" class="result-text"></p>
+                    <div id="resultDetails" class="result-details"></div>
+
+                    <div id="feedbackSection" class="feedback-section" style="display: none;">
+                        <h3>¿Es correcto el resultado?</h3>
+                        <div class="feedback-buttons">
+                            <button id="btnCorrect" class="btn btn-success">✅ Correcto</button>
+                            <button id="btnIncorrect" class="btn btn-danger">❌ Incorrecto</button>
+                        </div>
+
+                        <div id="correctionContainer" class="correction-container" style="display: none;">
+                            <input type="text" id="manualLabelInput" class="form-input" placeholder="Ingresa la clasificación correcta...">
+                            <button id="btnSubmitCorrection" class="btn btn-primary">Enviar</button>
+                        </div>
+                        <p id="feedbackMessage" class="feedback-message"></p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="errorSection" class="error-section card" style="display: none;">
+                <h2> Error</h2>
+                <p id="errorMessage"></p>
+            </section>
+        </article>
+
+        <footer class="footer">
+            <p>&copy; 2026 Detector de Manos</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
