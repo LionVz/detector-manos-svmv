@@ -42,11 +42,26 @@
         <main class="main">
             <section class="upload-section card">
                 <h2>Cargar Imagen</h2>
+                
+                <div class="tabs">
+                    <button id="tabLocal" class="tab-btn active">Archivo Local</button>
+                    <button id="tabUrl" class="tab-btn">Desde URL</button>
+                </div>
+
+                <!-- Contenedor Archivo Local -->
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-icon">📁</div>
                     <p>Arrastra una imagen o</p>
                     <label for="imageInput" class="upload-label">selecciona un archivo</label>
                     <input type="file" id="imageInput" class="image-input" accept="image/*" />
+                </div>
+
+                <!-- Contenedor URL -->
+                <div class="url-area" id="urlArea" style="display: none;">
+                    <div class="upload-icon">🔗</div>
+                    <p>Ingresa la URL de la imagen:</p>
+                    <input type="url" id="urlInput" class="form-input" placeholder="https://ejemplo.com/imagen.jpg">
+                    <button id="btnLoadUrl" class="btn btn-secondary mt-2">Cargar URL</button>
                 </div>
             </section>
 

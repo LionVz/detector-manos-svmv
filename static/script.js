@@ -1,6 +1,11 @@
 // Elementos del DOM
 const uploadArea = document.getElementById('uploadArea');
+const urlArea = document.getElementById('urlArea');
 const imageInput = document.getElementById('imageInput');
+const urlInput = document.getElementById('urlInput');
+const btnLoadUrl = document.getElementById('btnLoadUrl');
+const tabLocal = document.getElementById('tabLocal');
+const tabUrl = document.getElementById('tabUrl');
 const previewImage = document.getElementById('previewImage');
 const previewSection = document.getElementById('previewSection');
 const clearButton = document.getElementById('clearButton');
@@ -28,7 +33,27 @@ const statCount = document.getElementById('statCount');
 const statConfidence = document.getElementById('statConfidence');
 
 let selectedFile = null;
+let selectedUrl = null;
 let processedCount = 0;
+
+// Tabs Logic
+if (tabLocal && tabUrl) {
+  tabLocal.addEventListener('click', () => {
+    tabLocal.classList.add('active');
+    tabUrl.classList.remove('active');
+    uploadArea.style.display = 'block';
+    urlArea.style.display = 'none';
+    clearSelections();
+  });
+
+  tabUrl.addEventListener('click', () => {
+    tabUrl.classList.add('active');
+    tabLocal.classList.remove('active');
+    uploadArea.style.display = 'none';
+    urlArea.style.display = 'block';
+    clearSelections();
+  });
+}
 
 // Drag & drop
 uploadArea.addEventListener('dragover', (e) => {
@@ -47,13 +72,29 @@ uploadArea.addEventListener('drop', (e) => {
   if (files.length > 0) handleFileSelect(files[0]);
 });
 
-uploadArea.addEventListener('click', () => imageInput.click());
+uploadArea.addEventListener('click', (e) => {
+  if (e.target !== imageInput) {
+    imageInput.click();
+  }
+});
 
 imageInput.addEventListener('change', (e) => {
   if (e.target.files.length > 0) handleFileSelect(e.target.files[0]);
 });
 
-// Validación + preview
+// URL Logic
+if (btnLoadUrl) {
+  btnLoadUrl.addEventListener('click', () => {
+    const url = urlInput.value.trim();
+    if (url) {
+      handleUrlSelect(url);
+    } else {
+      showError('Por favor ingresa una URL válida');
+    }
+  });
+}
+
+// Validación + preview Archivo
 function handleFileSelect(file) {
   if (!file.type.startsWith('image/')) {
     showError('Por favor selecciona una imagen válida (JPG, PNG, etc.)');
@@ -65,9 +106,29 @@ function handleFileSelect(file) {
   }
 
   selectedFile = file;
+  selectedUrl = null;
   displayPreview(file);
   hideError();
   predictButton.disabled = false;
+}
+
+// Validación + preview URL
+function handleUrlSelect(url) {
+  selectedUrl = url;
+  selectedFile = null;
+
+  // Mostramos directamente la imagen de la URL
+  previewImage.src = url;
+  previewImage.onerror = () => {
+    showError('No se pudo cargar la imagen desde la URL. Verifica que sea un enlace directo a una imagen válida.');
+    clearSelections();
+  };
+  previewImage.onload = () => {
+    previewSection.style.display = 'block';
+    resultSection.style.display = 'none';
+    hideError();
+    predictButton.disabled = false;
+  };
 }
 
 function displayPreview(file) {
@@ -80,21 +141,27 @@ function displayPreview(file) {
   reader.readAsDataURL(file);
 }
 
-// Limpiar
-clearButton.addEventListener('click', () => {
+// Limpiar Selecciones
+function clearSelections() {
   selectedFile = null;
-  imageInput.value = '';
+  selectedUrl = null;
+  if (imageInput) imageInput.value = '';
+  if (urlInput) urlInput.value = '';
   previewSection.style.display = 'none';
   resultSection.style.display = 'none';
   errorSection.style.display = 'none';
   resetFeedback();
   predictButton.disabled = true;
-});
+  previewImage.src = '';
+}
+
+// Limpiar Botón
+clearButton.addEventListener('click', clearSelections);
 
 // Predict
 predictButton.addEventListener('click', async () => {
-  if (!selectedFile) {
-    showError('Por favor selecciona una imagen');
+  if (!selectedFile && !selectedUrl) {
+    showError('Por favor selecciona una imagen o ingresa una URL');
     return;
   }
 
@@ -103,7 +170,11 @@ predictButton.addEventListener('click', async () => {
 
   try {
     const formData = new FormData();
-    formData.append('image', selectedFile);
+    if (selectedFile) {
+      formData.append('image', selectedFile);
+    } else if (selectedUrl) {
+      formData.append('image_url', selectedUrl);
+    }
 
     const response = await fetch('/predict', { method: 'POST', body: formData });
     const result = await response.json();
@@ -119,16 +190,16 @@ predictButton.addEventListener('click', async () => {
     }
 
     // Caso "No seguro"
-   if (result.classification === "No seguro") {
-  displayResult({
-    classification: "No seguro",
-    confidence: result.confidence || 0,
-  });
-  // y aparte muestra el mensaje dentro de detalles:
-  const resultDetails = document.getElementById('resultDetails');
-  resultDetails.innerHTML += `<p><strong>Nota:</strong> ${result.message || "Intenta con mejor luz."}</p>`;
-  return;
-}
+    if (result.classification === "No seguro") {
+      displayResult({
+        classification: "No seguro",
+        confidence: result.confidence || 0,
+      });
+      // y aparte muestra el mensaje dentro de detalles:
+      const resultDetails = document.getElementById('resultDetails');
+      resultDetails.innerHTML += `<p><strong>Nota:</strong> ${result.message || "Intenta con mejor luz."}</p>`;
+      return;
+    }
 
 
     displayResult(result);
@@ -160,7 +231,7 @@ function displayResult(result) {
   resultDetails.innerHTML = `
     <p><strong>Clasificación:</strong> ${result.classification}</p>
     <p><strong>Confianza:</strong> ${confidence}%</p>
-    <p><strong>Archivo:</strong> ${selectedFile.name}</p>
+    <p><strong>Fuente:</strong> ${selectedFile ? selectedFile.name : 'URL'}</p>
     <p><strong>Procesado:</strong> ${new Date().toLocaleTimeString('es-ES')}</p>
   `;
 
