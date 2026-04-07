@@ -73,9 +73,10 @@ uploadArea.addEventListener('drop', (e) => {
 });
 
 uploadArea.addEventListener('click', (e) => {
-  if (e.target !== imageInput) {
-    imageInput.click();
-  }
+  // Evita abrir dos veces el selector cuando se hace click en el <label for="imageInput">
+  // porque el label ya dispara el click del input por defecto.
+  if (e.target === imageInput || e.target.closest('label[for="imageInput"]')) return;
+  imageInput.click();
 });
 
 imageInput.addEventListener('change', (e) => {
