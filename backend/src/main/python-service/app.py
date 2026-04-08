@@ -5,17 +5,25 @@ import pickle
 import cv2
 import numpy as np
 import urllib.request
-import tensorflow as tf
+from pathlib import Path
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from flask_cors import CORS
 
-app = Flask(__name__)
+BASE_DIR = Path(__file__).resolve().parent
+UPLOAD_DIR = BASE_DIR / "uploads"
+MODEL_PATH = BASE_DIR / "mobilenet_manos_model.p"
+
+app = Flask(
+    __name__,
+    template_folder=str(BASE_DIR / "templates"),
+    static_folder=str(BASE_DIR / "static"),
+)
 CORS(app)
-app.config["UPLOAD_FOLDER"] = "uploads"
+app.config["UPLOAD_FOLDER"] = str(UPLOAD_DIR)
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 # Cargar el modelo MobileNet .p
-with open("mobilenet_manos_model.p", "rb") as f:
+with open(MODEL_PATH, "rb") as f:
     modelo = pickle.load(f)
 
 # Inicializar un dummy predict para forzar la carga del grafo en el hilo principal
