@@ -1,0 +1,25 @@
+<main class="container">
+  <h1>Detector de Manos (Angular)</h1>
+
+  <section class="card">
+    <h2>Archivo</h2>
+    <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+    <button (click)="predictByFile()" [disabled]="loading">Predecir archivo</button>
+  </section>
+
+  <section class="card">
+    <h2>URL</h2>
+    <input type="url" [(ngModel)]="imageUrl" placeholder="https://ejemplo.com/imagen.jpg" />
+    <button (click)="predictByUrl()" [disabled]="loading">Predecir URL</button>
+  </section>
+
+  <section class="card" *ngIf="result">
+    <h2>Resultado</h2>
+    <p><strong>Clasificación:</strong> {{ result.classification }}</p>
+    <p><strong>Confianza:</strong> {{ result.confidence }}</p>
+    <p *ngIf="result.message"><strong>Nota:</strong> {{ result.message }}</p>
+    <p *ngIf="result.error"><strong>Error:</strong> {{ result.error }}</p>
+  </section>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+</main>
